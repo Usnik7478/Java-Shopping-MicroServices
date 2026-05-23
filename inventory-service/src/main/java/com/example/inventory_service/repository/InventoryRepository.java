@@ -13,9 +13,9 @@ import java.util.Optional;
 
 @Repository
 public interface InventoryRepository extends JpaRepository<Inventory,Long> {
-	Optional<Inventory> findBySkuCode(String skuCode);
 
-	List<Inventory> findBySkuCodeIn(List<String> skuCode);
+	@Query("Select i from Inventory i where i.quantity >= :quan and i.skuCode = :sku")
+	Inventory checkInventory(@Param("sku") String sku, @Param("quan") Integer quan);
 
 	@Transactional
 	@Modifying

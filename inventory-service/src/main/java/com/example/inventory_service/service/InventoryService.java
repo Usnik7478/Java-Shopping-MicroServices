@@ -1,14 +1,12 @@
 package com.example.inventory_service.service;
 
 import com.example.inventory_service.dto.InventoryOrderingDTO;
-import com.example.inventory_service.dto.InventoryResponseDTO;
-import com.example.inventory_service.mapper.InventoryMapper;
+import com.example.inventory_service.dto.OrderingPair;
+import com.example.inventory_service.model.Inventory;
 import com.example.inventory_service.repository.InventoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -16,10 +14,20 @@ public class InventoryService {
 	private final InventoryRepository inventoryRepository;
 
 	@Transactional(readOnly = true)
-	public List<InventoryResponseDTO> isInInventory(List<String> skuCode){
-		return inventoryRepository.findBySkuCodeIn(skuCode).stream().map(
-				InventoryMapper :: toInventoryIsInStockResponseDTO
-		).toList();
+	public String isInInventory(InventoryOrderingDTO inventoryOrderingDTO){
+		StringBuilder res = new StringBuilder();
+
+		for(OrderingPair order : inventoryOrderingDTO.getSkuAndQuantities()){
+			Inventory inv = inventoryRepository.checkInventory(order.getOrderSku(), Integer.parseInt(order.getOrderQuantity()));
+			if(inv == null){
+				res.append(order.getOrderSku()).append(": ").append(order.getOrderQuantity()).append("\n");
+			}
+		}
+
+		if(res.isEmpty()){
+			return "allInInventory";
+		}
+		return res.toString();
 	}
 
 	public String reduceFromInventory(InventoryOrderingDTO inventoryOrderingDTO) {

@@ -6,7 +6,6 @@ import com.usnik.order_service.dto.OrderRequest;
 import com.usnik.order_service.dto.OrderingPair;
 import com.usnik.order_service.mapper.OrderMapper;
 import com.usnik.order_service.model.Order;
-import com.usnik.order_service.model.OrderLineItems;
 import com.usnik.order_service.repository.OrderRepository;
 import jakarta.transaction.TransactionalException;
 import lombok.RequiredArgsConstructor;
@@ -31,22 +30,18 @@ public class OrderService {
 
 		Order order = OrderMapper.toOrderEntity(orderRequest);
 
-		List<String> skuCodes = order.getOrderLineItemsList().stream().map(
-				OrderLineItems :: getSkuCode
-		).toList();
+		List<OrderingPair> skus = order.getOrderLineItemsList().stream()
+				.map(OrderMapper :: toOrderingPairEntity).toList();
 
-		InventoryResponseDTO[] inventoryResponseDTOS = webClientBuilder.build().get()
-		.uri("http://inventory-service/api/inventory/checkInventory",
-				uriBuilder -> uriBuilder.queryParam("skuCode", skuCodes).build()
-		)
-		.retrieve()
-				.bodyToMono(InventoryResponseDTO[].class)
+		String inventoryCheckResponse = webClientBuilder.build().post().uri("http://inventory-service/api/inventory/checkInventory")
+				.bodyValue(InventoryOrderingDTO.builder().skuAndQuantities(skus).build())
+				.retrieve()
+				.bodyToMono(String.class)
 				.block();
 
-		assert inventoryResponseDTOS != null;
-		if (skuCodes.size() == inventoryResponseDTOS.length) {
+		if ("allInInventory".equals(inventoryCheckResponse)) {
 
-			List<OrderingPair> skus = order.getOrderLineItemsList().stream()
+			skus = order.getOrderLineItemsList().stream()
 					.map(OrderMapper :: toOrderingPairEntity).toList();
 
 			String result = webClientBuilder.build().post().uri("http://inventory-service/api/inventory/reduceFromInventory")
@@ -66,7 +61,7 @@ public class OrderService {
 			return "Order Placed";
 		}
 		else{
-			return "Order Not Placed";
+			return "Following items are currently not in stock :\n" + inventoryCheckResponse;
 		}
 
 	}
