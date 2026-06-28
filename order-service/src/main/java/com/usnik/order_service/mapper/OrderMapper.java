@@ -28,7 +28,7 @@ public class OrderMapper {
 	}
 
 	public static OrderingPair toOrderingPairEntity(OrderLineItems orderLineItems) {
-		return OrderingPair.builder().orderSku(orderLineItems.getSkuCode()).orderQuantity(orderLineItems.getQuantity().toString()).build();
+		return OrderingPair.builder().orderSku(orderLineItems.getSkuCode()).orderQuantity(orderLineItems.getQuantity().toString()).orderPrice(orderLineItems.getPrice().toString()).build();
 	}
 
 }

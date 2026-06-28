@@ -10,6 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 public class InventoryOrderingDTO {
-	public List<OrderingPair>skuAndQuantities;
+	public List<OrderingPair> skuAndQuantities;
 }
 

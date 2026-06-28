@@ -10,4 +10,5 @@ import lombok.*;
 public class OrderingPair {
 	public String orderSku;
 	public String orderQuantity;
+	public String orderPrice;
 }

@@ -16,13 +16,13 @@ public class InventoryController {
 
 	@PostMapping("/checkInventory")
 	@ResponseStatus(HttpStatus.OK)
-	public String isInInventory(@RequestBody InventoryOrderingDTO  inventoryOrderingDTO){
+	public String isInInventory(@RequestBody InventoryOrderingDTO inventoryOrderingDTO){
 		return inventoryService.isInInventory(inventoryOrderingDTO);
 	}
 
 	@PostMapping("/reduceFromInventory")
 	@ResponseStatus(HttpStatus.OK)
-	public String reduceFromInventory(@RequestBody InventoryOrderingDTO  inventoryOrderingDTO){
+	public String reduceFromInventory(@RequestBody InventoryOrderingDTO inventoryOrderingDTO){
 		return inventoryService.reduceFromInventory(inventoryOrderingDTO);
 	}
 }
